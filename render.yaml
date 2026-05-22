@@ -16,6 +16,6 @@ services:
       - key: APP_SECRET
         generateValue: true
       - key: KIMI_AUTH_URL
-        value: ""
+        value: "https://example.com"
       - key: KIMI_OPEN_URL
-        value: ""
+        value: "https://example.com"

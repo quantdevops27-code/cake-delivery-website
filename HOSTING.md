@@ -22,6 +22,7 @@ Render config:
 - Health check: `/api/health`
 - Demo env: `DEMO_MODE=true`
 - Render sets `NODE_ENV=production` from `render.yaml`
+- Kimi auth env uses placeholder URLs in demo mode and can be replaced later
 
 ## Current Hosted Mode
 

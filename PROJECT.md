@@ -185,3 +185,4 @@ Current scope note:
 - Fixed admin navigation breakpoint so the module menu stays on the left side in desktop/tablet browser widths.
 - Added Render hosting blueprint, hosted demo mode, production env sample and `/api/health`.
 - Made `npm run start` hosting-friendly; production mode is supplied through host environment variables.
+- Updated Render demo auth placeholders so Blueprint deploy does not depend on empty auth values.
