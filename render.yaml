@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: bakerush-cake-delivery
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DEMO_MODE
+        value: "true"
+      - key: APP_ID
+        value: demo-app
+      - key: APP_SECRET
+        generateValue: true
+      - key: KIMI_AUTH_URL
+        value: ""
+      - key: KIMI_OPEN_URL
+        value: ""
