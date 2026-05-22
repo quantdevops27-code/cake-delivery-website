@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { trpc } from "@/providers/trpc";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
+import { adminModuleLabels, adminModules, type AdminModule } from "@contracts/admin-permissions";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type UserRole = "user" | "admin";
+type UserRole = "user" | "admin" | "manager" | "supervisor";
 type UserStatus = "active" | "inactive" | "blocked";
 type AuthProvider = "mobile" | "google" | "email" | "demo";
 
@@ -25,6 +26,7 @@ type ManagedUser = {
   role: UserRole;
   status: UserStatus;
   authProvider: AuthProvider;
+  permissions: string[];
   notes: string | null;
   createdAt: Date | string;
   updatedAt: Date | string;
@@ -41,6 +43,7 @@ type UserForm = {
   role: UserRole;
   status: UserStatus;
   authProvider: AuthProvider;
+  permissions: AdminModule[];
   notes: string;
 };
 
@@ -51,6 +54,7 @@ const emptyForm: UserForm = {
   role: "user",
   status: "active",
   authProvider: "mobile",
+  permissions: [],
   notes: "",
 };
 
@@ -124,6 +128,9 @@ export default function Users() {
       role: user.role,
       status: user.status,
       authProvider: user.authProvider,
+      permissions: user.permissions.filter((item): item is AdminModule =>
+        adminModules.includes(item as AdminModule),
+      ),
       notes: user.notes ?? "",
     });
     setDialogOpen(true);
@@ -137,6 +144,7 @@ export default function Users() {
       role: form.role,
       status: form.status,
       authProvider: form.authProvider,
+      permissions: form.role === "admin" ? [] : form.permissions,
       notes: form.notes.trim(),
     };
 
@@ -154,7 +162,17 @@ export default function Users() {
   };
 
   const totalAdmins = data?.items.filter((user) => user.role === "admin").length ?? 0;
+  const staffUsers = data?.items.filter((user) => ["manager", "supervisor"].includes(user.role)).length ?? 0;
   const activeUsers = data?.items.filter((user) => user.status === "active").length ?? 0;
+
+  const togglePermission = (module: AdminModule) => {
+    setForm((current) => ({
+      ...current,
+      permissions: current.permissions.includes(module)
+        ? current.permissions.filter((item) => item !== module)
+        : [...current.permissions, module],
+    }));
+  };
 
   return (
     <AdminLayout>
@@ -182,8 +200,8 @@ export default function Users() {
             <p className="mt-2 text-2xl font-semibold text-emerald-700">{activeUsers}</p>
           </div>
           <div className="rounded-2xl bg-white/70 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B3A3A]/50">Admins</p>
-            <p className="mt-2 text-2xl font-semibold text-[#6B3A3A]">{totalAdmins}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B3A3A]/50">Staff</p>
+            <p className="mt-2 text-2xl font-semibold text-[#6B3A3A]">{staffUsers + totalAdmins}</p>
           </div>
         </div>
 
@@ -211,6 +229,8 @@ export default function Users() {
             >
               <option value="all">All Roles</option>
               <option value="admin">Admins</option>
+              <option value="manager">Managers</option>
+              <option value="supervisor">Supervisors</option>
               <option value="user">Users</option>
             </select>
             <select
@@ -283,6 +303,11 @@ export default function Users() {
                           {user.role}
                         </span>
                         <p className="mt-1 text-xs capitalize text-[#1A1A1A]/45">{user.authProvider} login</p>
+                        {user.role !== "admin" && user.permissions.length > 0 && (
+                          <p className="mt-1 max-w-40 truncate text-xs text-[#1A1A1A]/45">
+                            {user.permissions.map((item) => adminModuleLabels[item as AdminModule] ?? item).join(", ")}
+                          </p>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(user.status)}`}>
@@ -373,6 +398,8 @@ export default function Users() {
                 <select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value as UserRole })} className="admin-input">
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
+                  <option value="manager">Manager</option>
+                  <option value="supervisor">Supervisor</option>
                 </select>
               </label>
               <label className="space-y-1.5">
@@ -396,6 +423,42 @@ export default function Users() {
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B3A3A]/55">Admin Notes</span>
                 <textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} className="admin-input min-h-24" />
               </label>
+              {form.role === "admin" ? (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 sm:col-span-2">
+                  Admin role gets full backend and admin panel access automatically.
+                </div>
+              ) : form.role === "manager" || form.role === "supervisor" ? (
+                <div className="space-y-3 rounded-2xl border border-[#6B3A3A]/10 bg-[#F8EDEB]/60 p-4 sm:col-span-2">
+                  <div>
+                    <p className="text-sm font-semibold text-[#6B3A3A]">Module Access</p>
+                    <p className="text-xs text-[#1A1A1A]/50">
+                      Select exactly what this {form.role} can open and edit.
+                    </p>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {adminModules
+                      .filter((module) => module !== "users")
+                      .map((module) => (
+                        <label
+                          key={module}
+                          className="flex items-center gap-2 rounded-xl border border-[#6B3A3A]/10 bg-white/75 px-3 py-2 text-sm font-medium text-[#6B3A3A]"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={form.permissions.includes(module)}
+                            onChange={() => togglePermission(module)}
+                            className="h-4 w-4 accent-[#6B3A3A]"
+                          />
+                          {adminModuleLabels[module]}
+                        </label>
+                      ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-[#6B3A3A]/10 bg-[#F8EDEB]/60 p-4 text-sm text-[#1A1A1A]/55 sm:col-span-2">
+                  Customer users do not get backend module access.
+                </div>
+              )}
             </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" className="rounded-full" onClick={() => setDialogOpen(false)}>

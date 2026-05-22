@@ -218,12 +218,16 @@ export const demoProducts = [
 
 export const demoAdminUser = {
   id: 1,
-  unionId: "local-admin",
-  name: "Local Admin",
-  email: "admin@bakerush.local",
+  unionId: "aman-main-admin",
+  name: "Aman Kongari",
+  email: "coolscott18@gmail.com",
   avatar: null,
   role: "admin" as const,
-  phone: "+91 99999 00000",
+  phone: "+91 70078 23163",
+  status: "active" as const,
+  authProvider: "demo" as const,
+  permissions: ["*"],
+  notes: "Main owner admin account for Aman Kongari.",
   createdAt: new Date("2026-05-01"),
   updatedAt: new Date("2026-05-16"),
   lastSignInAt: new Date("2026-05-16"),
@@ -236,9 +240,10 @@ export type DemoManagedUser = {
   email: string | null;
   phone: string | null;
   avatar: string | null;
-  role: "user" | "admin";
+  role: "user" | "admin" | "manager" | "supervisor";
   status: "active" | "inactive" | "blocked";
   authProvider: "mobile" | "google" | "email" | "demo";
+  permissions: string[];
   notes: string;
   createdAt: Date;
   updatedAt: Date;
@@ -248,12 +253,41 @@ export type DemoManagedUser = {
 export const demoManagedUsers: DemoManagedUser[] = [
   {
     ...demoAdminUser,
-    status: "active" as const,
-    authProvider: "demo" as const,
-    notes: "Default admin account for hosted demo mode.",
   },
   {
     id: 2,
+    unionId: "manager-catalog",
+    name: "Catalog Manager",
+    email: "catalog.manager@bakerush.local",
+    phone: "+91 90000 11111",
+    role: "manager" as const,
+    avatar: null,
+    status: "active" as const,
+    authProvider: "email" as const,
+    permissions: ["dashboard", "products", "collections", "addons", "occasions"],
+    notes: "Can manage catalog, collections, add-ons and occasions.",
+    createdAt: new Date("2026-05-12"),
+    updatedAt: new Date("2026-05-16"),
+    lastSignInAt: new Date("2026-05-16T11:20:00"),
+  },
+  {
+    id: 3,
+    unionId: "supervisor-ops",
+    name: "Ops Supervisor",
+    email: "ops.supervisor@bakerush.local",
+    phone: "+91 90000 22222",
+    role: "supervisor" as const,
+    avatar: null,
+    status: "active" as const,
+    authProvider: "email" as const,
+    permissions: ["dashboard", "orders", "locations"],
+    notes: "Can monitor orders and delivery pincodes.",
+    createdAt: new Date("2026-05-13"),
+    updatedAt: new Date("2026-05-16"),
+    lastSignInAt: new Date("2026-05-16T12:15:00"),
+  },
+  {
+    id: 4,
     unionId: "mobile-9876543210",
     name: "Aman Kongari",
     email: "aman@example.com",
@@ -262,13 +296,14 @@ export const demoManagedUsers: DemoManagedUser[] = [
     avatar: null,
     status: "active" as const,
     authProvider: "mobile" as const,
+    permissions: [],
     notes: "Repeat buyer, birthday cakes and express delivery.",
     createdAt: new Date("2026-04-18"),
     updatedAt: new Date("2026-05-16"),
     lastSignInAt: new Date("2026-05-16T08:20:00"),
   },
   {
-    id: 3,
+    id: 5,
     unionId: "google-priya",
     name: "Priya Sharma",
     email: "priya@example.com",
@@ -277,13 +312,14 @@ export const demoManagedUsers: DemoManagedUser[] = [
     avatar: null,
     status: "active" as const,
     authProvider: "google" as const,
+    permissions: [],
     notes: "Prefers desserts and scheduled deliveries.",
     createdAt: new Date("2026-04-25"),
     updatedAt: new Date("2026-05-14"),
     lastSignInAt: new Date("2026-05-15T14:30:00"),
   },
   {
-    id: 4,
+    id: 6,
     unionId: "mobile-9988776655",
     name: "Rahul Mehta",
     email: "rahul@example.com",
@@ -292,6 +328,7 @@ export const demoManagedUsers: DemoManagedUser[] = [
     avatar: null,
     status: "inactive" as const,
     authProvider: "mobile" as const,
+    permissions: [],
     notes: "Low activity account retained for testing filters.",
     createdAt: new Date("2026-05-05"),
     updatedAt: new Date("2026-05-08"),

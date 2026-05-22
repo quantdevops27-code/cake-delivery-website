@@ -1,4 +1,5 @@
 import { ErrorMessages } from "@contracts/constants";
+import { canAccessModule, type AdminModule } from "@contracts/admin-permissions";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TrpcContext } from "./context";
@@ -38,5 +39,28 @@ function requireRole(role: string) {
   });
 }
 
+function requireModule(module: AdminModule) {
+  return t.middleware(async (opts) => {
+    const { ctx, next } = opts;
+
+    if (!ctx.user) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: ErrorMessages.unauthenticated,
+      });
+    }
+
+    if (!canAccessModule(ctx.user.role, ctx.user.permissions, module)) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: `Access denied for ${module}.`,
+      });
+    }
+
+    return next({ ctx: { ...ctx, user: ctx.user } });
+  });
+}
+
 export const authedQuery = t.procedure.use(requireAuth);
 export const adminQuery = authedQuery.use(requireRole("admin"));
+export const moduleQuery = (module: AdminModule) => authedQuery.use(requireModule(module));

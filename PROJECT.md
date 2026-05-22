@@ -189,3 +189,5 @@ Current scope note:
 - Updated Render demo auth placeholders so Blueprint deploy does not depend on empty auth values.
 - Moved Vite/esbuild/Tailwind build tooling into deploy dependencies so Render free web service can build even when production install skips dev dependencies.
 - Added backend user management with admin list/search/filter, create, edit, role/status/provider/notes controls, delete protection for admin accounts and `/admin/users` UI.
+- Added role-based access control for admin, manager and supervisor users with module-level permissions across dashboard, products, collections, add-ons, locations, occasions, orders, customers, segments and campaigns.
+- Set the demo/live owner admin identity to `coolscott18@gmail.com`. Passwords must stay out of public Git and should be stored via env/DB auth hash when password login is enabled.

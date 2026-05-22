@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { adminQuery, createRouter, publicQuery } from "../middleware";
+import { createRouter, moduleQuery, publicQuery } from "../middleware";
 import { demoHeroSlides } from "../demo-data";
 
 const heroSlideInput = z.object({
@@ -28,11 +28,11 @@ export const siteRouter = createRouter({
       .sort((a, b) => a.sortOrder - b.sortOrder)
   ),
 
-  adminListHeroSlides: adminQuery.query(async () =>
+  adminListHeroSlides: moduleQuery("hero").query(async () =>
     [...demoHeroSlides].sort((a, b) => a.sortOrder - b.sortOrder)
   ),
 
-  updateHeroSlide: adminQuery.input(heroSlideInput).mutation(async ({ input }) => {
+  updateHeroSlide: moduleQuery("hero").input(heroSlideInput).mutation(async ({ input }) => {
     const index = demoHeroSlides.findIndex((slide) => slide.id === input.id);
     if (index === -1) {
       demoHeroSlides.push(input);

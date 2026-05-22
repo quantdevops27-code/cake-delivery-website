@@ -2,14 +2,16 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { createRouter, adminQuery } from "../middleware";
+import { adminModules } from "@contracts/admin-permissions";
 import { getDb } from "../queries/connection";
 import { env } from "../lib/env";
 import { demoManagedUsers, demoOrders } from "../demo-data";
 import { orders, users } from "@db/schema";
 
-const roleSchema = z.enum(["user", "admin"]);
+const roleSchema = z.enum(["user", "admin", "manager", "supervisor"]);
 const statusSchema = z.enum(["active", "inactive", "blocked"]);
 const authProviderSchema = z.enum(["mobile", "google", "email", "demo"]);
+const permissionSchema = z.enum(adminModules);
 
 const userInput = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -18,6 +20,7 @@ const userInput = z.object({
   role: roleSchema.default("user"),
   status: statusSchema.default("active"),
   authProvider: authProviderSchema.default("mobile"),
+  permissions: z.array(permissionSchema).default([]),
   notes: z.string().trim().optional().or(z.literal("")),
 });
 
@@ -116,6 +119,7 @@ export const usersRouter = createRouter({
           role: users.role,
           status: users.status,
           authProvider: users.authProvider,
+          permissions: users.permissions,
           notes: users.notes,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
@@ -157,6 +161,9 @@ export const usersRouter = createRouter({
       return {
         items: items.map((item) => ({
           ...item,
+          permissions: Array.isArray(item.permissions)
+            ? item.permissions.filter((entry): entry is string => typeof entry === "string")
+            : [],
           totalOrders: orderStats[item.id]?.totalOrders ?? 0,
           totalSpent: orderStats[item.id]?.totalSpent ?? 0,
         })),
@@ -183,6 +190,7 @@ export const usersRouter = createRouter({
         role: input.role,
         status: input.status,
         authProvider: input.authProvider,
+        permissions: input.role === "admin" ? ["*"] : input.permissions,
         notes: cleanOptional(input.notes) ?? "",
         createdAt: now,
         updatedAt: now,
@@ -201,6 +209,7 @@ export const usersRouter = createRouter({
       role: input.role,
       status: input.status,
       authProvider: input.authProvider,
+      permissions: input.role === "admin" ? ["*"] : input.permissions,
       notes: cleanOptional(input.notes),
       avatar: null,
       lastSignInAt: new Date(),
@@ -230,6 +239,14 @@ export const usersRouter = createRouter({
         role: input.role ?? current.role,
         status: input.status ?? current.status,
         authProvider: input.authProvider ?? current.authProvider,
+        permissions:
+          input.permissions !== undefined
+            ? input.role === "admin"
+              ? ["*"]
+              : input.permissions
+            : input.role === "admin"
+              ? ["*"]
+              : current.permissions,
         notes: input.notes !== undefined ? cleanOptional(input.notes) ?? "" : current.notes,
         updatedAt: new Date(),
       };
@@ -245,6 +262,9 @@ export const usersRouter = createRouter({
     if (input.role !== undefined) updates.role = input.role;
     if (input.status !== undefined) updates.status = input.status;
     if (input.authProvider !== undefined) updates.authProvider = input.authProvider;
+    if (input.permissions !== undefined || input.role === "admin") {
+      updates.permissions = input.role === "admin" ? ["*"] : (input.permissions ?? []);
+    }
     if (input.notes !== undefined) updates.notes = cleanOptional(input.notes);
 
     await db.update(users).set(updates).where(eq(users.id, input.id));

@@ -17,33 +17,47 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import type { ReactNode } from "react";
+import { canAccessModule, type AdminModule } from "@contracts/admin-permissions";
 
 const navItems = [
-  { name: "Dashboard", path: "/admin", icon: LayoutDashboard, hint: "Store overview" },
-  { name: "Users", path: "/admin/users", icon: UserCog, hint: "Access & roles" },
-  { name: "Hero", path: "/admin/hero", icon: Images, hint: "Homepage banner" },
-  { name: "Collections", path: "/admin/collections", icon: FolderTree, hint: "Category hierarchy" },
-  { name: "Orders", path: "/admin/orders", icon: ShoppingBag, hint: "Fulfilment queue" },
-  { name: "Products", path: "/admin/products", icon: Package, hint: "Catalog & inventory" },
-  { name: "Add-ons", path: "/admin/add-ons", icon: Gift, hint: "Upsell markup" },
-  { name: "Locations", path: "/admin/locations", icon: MapPinned, hint: "Pincode delivery" },
-  { name: "Occasions", path: "/admin/occasions", icon: PartyPopper, hint: "Events & festivals" },
-  { name: "Customers", path: "/admin/customers", icon: Users, hint: "CRM profiles" },
-  { name: "Segments", path: "/admin/segments", icon: PieChart, hint: "Audience rules" },
-  { name: "Campaigns", path: "/admin/campaigns", icon: Megaphone, hint: "Offers & messages" },
+  { name: "Dashboard", path: "/admin", icon: LayoutDashboard, hint: "Store overview", module: "dashboard" },
+  { name: "Users", path: "/admin/users", icon: UserCog, hint: "Access & roles", module: "users" },
+  { name: "Hero", path: "/admin/hero", icon: Images, hint: "Homepage banner", module: "hero" },
+  { name: "Collections", path: "/admin/collections", icon: FolderTree, hint: "Category hierarchy", module: "collections" },
+  { name: "Orders", path: "/admin/orders", icon: ShoppingBag, hint: "Fulfilment queue", module: "orders" },
+  { name: "Products", path: "/admin/products", icon: Package, hint: "Catalog & inventory", module: "products" },
+  { name: "Add-ons", path: "/admin/add-ons", icon: Gift, hint: "Upsell markup", module: "addons" },
+  { name: "Locations", path: "/admin/locations", icon: MapPinned, hint: "Pincode delivery", module: "locations" },
+  { name: "Occasions", path: "/admin/occasions", icon: PartyPopper, hint: "Events & festivals", module: "occasions" },
+  { name: "Customers", path: "/admin/customers", icon: Users, hint: "CRM profiles", module: "customers" },
+  { name: "Segments", path: "/admin/segments", icon: PieChart, hint: "Audience rules", module: "segments" },
+  { name: "Campaigns", path: "/admin/campaigns", icon: Megaphone, hint: "Offers & messages", module: "campaigns" },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-  const activeItem = navItems.find((item) => item.path === location.pathname) ?? navItems[0];
+  const allowedNavItems = user
+    ? navItems.filter((item) => canAccessModule(user.role, user.permissions, item.module as AdminModule))
+    : [];
+  const activeItem =
+    allowedNavItems.find((item) => item.path === location.pathname) ??
+    allowedNavItems[0] ??
+    navItems[0];
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== "admin")) {
+    if (isLoading) return;
+    if (!user) {
       navigate("/");
+      return;
     }
-  }, [user, isLoading, navigate]);
+    const requested = navItems.find((item) => item.path === location.pathname);
+    if (requested && !canAccessModule(user.role, user.permissions, requested.module as AdminModule)) {
+      const firstAllowed = navItems.find((item) => canAccessModule(user.role, user.permissions, item.module as AdminModule));
+      navigate(firstAllowed?.path ?? "/");
+    }
+  }, [user, isLoading, navigate, location.pathname]);
 
   if (isLoading) {
     return (
@@ -53,7 +67,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!user || user.role !== "admin") {
+  if (!user || allowedNavItems.length === 0) {
     return null;
   }
 
@@ -84,7 +98,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
 
             <nav className="space-y-1">
-              {navItems.map((item) => {
+              {allowedNavItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
                   <Link
@@ -142,7 +156,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </div>
 
           <div className="mb-6 flex gap-2 overflow-x-auto pb-2 md:hidden">
-            {navItems.map((item) => {
+            {allowedNavItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { adminQuery, createRouter, publicQuery } from "../middleware";
+import { createRouter, moduleQuery, publicQuery } from "../middleware";
 import {
   demoLocations,
   demoAddOns,
@@ -109,11 +109,11 @@ function buildCollectionMenus(items = demoCollectionItems) {
 export const commerceRouter = createRouter({
   listCollectionMenus: publicQuery.query(() => buildCollectionMenus()),
 
-  adminListCollectionItems: adminQuery.query(() =>
+  adminListCollectionItems: moduleQuery("collections").query(() =>
     [...demoCollectionItems].sort((a, b) => a.navName.localeCompare(b.navName) || a.sortOrder - b.sortOrder),
   ),
 
-  createCollectionItem: adminQuery.input(collectionItemInput).mutation(({ input }) => {
+  createCollectionItem: moduleQuery("collections").input(collectionItemInput).mutation(({ input }) => {
     const item = {
       id: Math.max(...demoCollectionItems.map((entry) => entry.id), 0) + 1,
       ...input,
@@ -125,7 +125,7 @@ export const commerceRouter = createRouter({
     return item;
   }),
 
-  updateCollectionItem: adminQuery
+  updateCollectionItem: moduleQuery("collections")
     .input(collectionItemInput.extend({ id: z.number() }))
     .mutation(({ input }) => {
       const index = demoCollectionItems.findIndex((item) => item.id === input.id);
@@ -139,7 +139,7 @@ export const commerceRouter = createRouter({
       return { success: true };
     }),
 
-  deleteCollectionItem: adminQuery
+  deleteCollectionItem: moduleQuery("collections")
     .input(z.object({ id: z.number() }))
     .mutation(({ input }) => {
       const index = demoCollectionItems.findIndex((item) => item.id === input.id);
@@ -156,11 +156,11 @@ export const commerceRouter = createRouter({
         .sort((a, b) => a.sortOrder - b.sortOrder),
     ),
 
-  adminListAddOns: adminQuery.query(() =>
+  adminListAddOns: moduleQuery("addons").query(() =>
     [...demoAddOns].sort((a, b) => a.sortOrder - b.sortOrder),
   ),
 
-  createAddOn: adminQuery.input(addOnInput).mutation(({ input }) => {
+  createAddOn: moduleQuery("addons").input(addOnInput).mutation(({ input }) => {
     const addOn = {
       id: Math.max(...demoAddOns.map((entry) => entry.id), 0) + 1,
       ...input,
@@ -170,7 +170,7 @@ export const commerceRouter = createRouter({
     return addOn;
   }),
 
-  updateAddOn: adminQuery
+  updateAddOn: moduleQuery("addons")
     .input(addOnInput.extend({ id: z.number() }))
     .mutation(({ input }) => {
       const index = demoAddOns.findIndex((item) => item.id === input.id);
@@ -182,7 +182,7 @@ export const commerceRouter = createRouter({
       return { success: true };
     }),
 
-  deleteAddOn: adminQuery.input(z.object({ id: z.number() })).mutation(({ input }) => {
+  deleteAddOn: moduleQuery("addons").input(z.object({ id: z.number() })).mutation(({ input }) => {
     const index = demoAddOns.findIndex((item) => item.id === input.id);
     if (index >= 0) demoAddOns.splice(index, 1);
     return { success: true };
@@ -202,11 +202,11 @@ export const commerceRouter = createRouter({
       };
     }),
 
-  listLocations: adminQuery.query(() =>
+  listLocations: moduleQuery("locations").query(() =>
     [...demoLocations].sort((a, b) => a.city.localeCompare(b.city)),
   ),
 
-  createLocation: adminQuery.input(locationInput).mutation(({ input }) => {
+  createLocation: moduleQuery("locations").input(locationInput).mutation(({ input }) => {
     const location = {
       id: Math.max(...demoLocations.map((item) => item.id), 0) + 1,
       ...input,
@@ -215,7 +215,7 @@ export const commerceRouter = createRouter({
     return location;
   }),
 
-  updateLocation: adminQuery
+  updateLocation: moduleQuery("locations")
     .input(locationInput.extend({ id: z.number() }))
     .mutation(({ input }) => {
       const index = demoLocations.findIndex((item) => item.id === input.id);
@@ -224,7 +224,7 @@ export const commerceRouter = createRouter({
       return { success: true };
     }),
 
-  deleteLocation: adminQuery
+  deleteLocation: moduleQuery("locations")
     .input(z.object({ id: z.number() }))
     .mutation(({ input }) => {
       const index = demoLocations.findIndex((item) => item.id === input.id);
@@ -244,11 +244,11 @@ export const commerceRouter = createRouter({
       })),
   ),
 
-  adminListOccasionSections: adminQuery.query(() =>
+  adminListOccasionSections: moduleQuery("occasions").query(() =>
     [...demoOccasionSections].sort((a, b) => a.sortOrder - b.sortOrder),
   ),
 
-  createOccasionSection: adminQuery
+  createOccasionSection: moduleQuery("occasions")
     .input(occasionSectionInput)
     .mutation(({ input }) => {
       const section = {
@@ -262,7 +262,7 @@ export const commerceRouter = createRouter({
       return section;
     }),
 
-  updateOccasionSection: adminQuery
+  updateOccasionSection: moduleQuery("occasions")
     .input(occasionSectionInput.extend({ id: z.number() }))
     .mutation(({ input }) => {
       const index = demoOccasionSections.findIndex((item) => item.id === input.id);
@@ -276,7 +276,7 @@ export const commerceRouter = createRouter({
       return { success: true };
     }),
 
-  deleteOccasionSection: adminQuery
+  deleteOccasionSection: moduleQuery("occasions")
     .input(z.object({ id: z.number() }))
     .mutation(({ input }) => {
       const index = demoOccasionSections.findIndex((item) => item.id === input.id);

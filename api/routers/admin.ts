@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createRouter, adminQuery } from "../middleware";
+import { createRouter, moduleQuery } from "../middleware";
 import { getDb } from "../queries/connection";
 import { env } from "../lib/env";
 import { demoOrders } from "../demo-data";
@@ -7,7 +7,7 @@ import { orders } from "@db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 export const adminRouter = createRouter({
-  getOrders: adminQuery
+  getOrders: moduleQuery("orders")
     .input(
       z.object({
         status: z.string().optional(),
@@ -63,7 +63,7 @@ export const adminRouter = createRouter({
       };
     }),
 
-  updateOrderStatus: adminQuery
+  updateOrderStatus: moduleQuery("orders")
     .input(
       z.object({
         id: z.number(),
@@ -90,7 +90,7 @@ export const adminRouter = createRouter({
       return { success: true };
     }),
 
-  getStats: adminQuery.query(async () => {
+  getStats: moduleQuery("dashboard").query(async () => {
     if (!env.databaseUrl) {
       const totalRevenue = demoOrders.reduce(
         (sum, order) => sum + Number(order.total),

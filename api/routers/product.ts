@@ -2,7 +2,7 @@ import { z } from "zod";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { TRPCError } from "@trpc/server";
-import { adminQuery, createRouter, publicQuery } from "../middleware";
+import { createRouter, moduleQuery, publicQuery } from "../middleware";
 import { getDb } from "../queries/connection";
 import { env } from "../lib/env";
 import { demoCategories, demoCollectionItems, demoOccasionSections, demoProducts } from "../demo-data";
@@ -150,7 +150,7 @@ function filterDemoProducts(params: {
 }
 
 export const productRouter = createRouter({
-  uploadImage: adminQuery
+  uploadImage: moduleQuery("products")
     .input(
       z.object({
         fileName: z.string().min(1),
@@ -190,7 +190,7 @@ export const productRouter = createRouter({
       return { url: `/uploads/products/${fileName}` };
     }),
 
-  adminList: adminQuery
+  adminList: moduleQuery("products")
     .input(listInput.optional())
     .query(async ({ input }) => {
       const params = input ?? { page: 1, limit: 20 };
@@ -281,7 +281,7 @@ export const productRouter = createRouter({
       };
     }),
 
-  create: adminQuery.input(productAdminInput).mutation(async ({ input }) => {
+  create: moduleQuery("products").input(productAdminInput).mutation(async ({ input }) => {
     const slug = input.slug?.trim() || slugify(input.name);
     const sku = input.sku?.trim() || skuify(input.name);
 
@@ -335,7 +335,7 @@ export const productRouter = createRouter({
     return { id: Number(result.insertId), slug };
   }),
 
-  bulkCreate: adminQuery.input(bulkProductAdminInput).mutation(async ({ input }) => {
+  bulkCreate: moduleQuery("products").input(bulkProductAdminInput).mutation(async ({ input }) => {
     const errors: Array<{ row: number; message: string }> = [];
     const created: Array<{ id?: number; sku: string; slug: string; name: string }> = [];
 
@@ -457,7 +457,7 @@ export const productRouter = createRouter({
     };
   }),
 
-  update: adminQuery
+  update: moduleQuery("products")
     .input(productAdminInput.extend({ id: z.number() }))
     .mutation(async ({ input }) => {
       const slug = input.slug?.trim() || slugify(input.name);
@@ -513,7 +513,7 @@ export const productRouter = createRouter({
       return { success: true };
     }),
 
-  delete: adminQuery.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+  delete: moduleQuery("products").input(z.object({ id: z.number() })).mutation(async ({ input }) => {
     if (!env.databaseUrl) {
       const index = demoProducts.findIndex((product) => product.id === input.id);
       if (index >= 0) demoProducts.splice(index, 1);

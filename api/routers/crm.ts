@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createRouter, adminQuery } from "../middleware";
+import { createRouter, moduleQuery } from "../middleware";
 import { getDb } from "../queries/connection";
 import { env } from "../lib/env";
 import {
@@ -19,7 +19,7 @@ import {
 import { eq, desc, asc, sql, and } from "drizzle-orm";
 
 export const crmRouter = createRouter({
-  getCustomers: adminQuery
+  getCustomers: moduleQuery("customers")
     .input(
       z.object({
         search: z.string().optional(),
@@ -141,7 +141,7 @@ export const crmRouter = createRouter({
       };
     }),
 
-  getCustomerDetail: adminQuery
+  getCustomerDetail: moduleQuery("customers")
     .input(z.object({ userId: z.number() }))
     .query(async ({ input }) => {
       if (!env.databaseUrl) {
@@ -180,7 +180,7 @@ export const crmRouter = createRouter({
       };
     }),
 
-  getCustomerSegments: adminQuery.query(async () => {
+  getCustomerSegments: moduleQuery("segments").query(async () => {
     if (!env.databaseUrl) {
       return demoSegments;
     }
@@ -208,7 +208,7 @@ export const crmRouter = createRouter({
     }));
   }),
 
-  createSegment: adminQuery
+  createSegment: moduleQuery("segments")
     .input(
       z.object({
         name: z.string().min(1),
@@ -232,7 +232,7 @@ export const crmRouter = createRouter({
       return { id: Number(segment.insertId) };
     }),
 
-  getCustomerAnalytics: adminQuery
+  getCustomerAnalytics: moduleQuery("customers")
     .input(
       z.object({
         period: z.enum(["7d", "30d", "90d"]).default("30d"),
@@ -307,7 +307,7 @@ export const crmRouter = createRouter({
       };
     }),
 
-  getAbandonedCarts: adminQuery
+  getAbandonedCarts: moduleQuery("customers")
     .input(
       z.object({
         page: z.number().min(1).default(1),
@@ -352,7 +352,7 @@ export const crmRouter = createRouter({
       };
     }),
 
-  getRemarketingCampaigns: adminQuery
+  getRemarketingCampaigns: moduleQuery("campaigns")
     .input(
       z.object({
         page: z.number().min(1).default(1),
@@ -396,7 +396,7 @@ export const crmRouter = createRouter({
       };
     }),
 
-  createCampaign: adminQuery
+  createCampaign: moduleQuery("campaigns")
     .input(
       z.object({
         name: z.string().min(1),
@@ -424,7 +424,7 @@ export const crmRouter = createRouter({
       return { id: Number(campaign.insertId) };
     }),
 
-  updateCampaign: adminQuery
+  updateCampaign: moduleQuery("campaigns")
     .input(
       z.object({
         id: z.number(),
@@ -463,7 +463,7 @@ export const crmRouter = createRouter({
       return { success: true };
     }),
 
-  sendCampaign: adminQuery
+  sendCampaign: moduleQuery("campaigns")
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       if (!env.databaseUrl) {
@@ -481,7 +481,7 @@ export const crmRouter = createRouter({
       return { success: true };
     }),
 
-  getDashboardStats: adminQuery.query(async () => {
+  getDashboardStats: moduleQuery("dashboard").query(async () => {
     if (!env.databaseUrl) {
       return {
         totalCustomers: demoCustomers.length,
