@@ -186,3 +186,4 @@ Current scope note:
 - Added Render hosting blueprint, hosted demo mode, production env sample and `/api/health`.
 - Made `npm run start` hosting-friendly; production mode is supplied through host environment variables.
 - Updated Render demo auth placeholders so Blueprint deploy does not depend on empty auth values.
+- Moved Vite/esbuild/Tailwind build tooling into deploy dependencies so Render free web service can build even when production install skips dev dependencies.
