@@ -6,6 +6,7 @@ import { crmRouter } from "./routers/crm";
 import { adminRouter } from "./routers/admin";
 import { commerceRouter } from "./routers/commerce";
 import { siteRouter } from "./routers/site";
+import { usersRouter } from "./routers/users";
 import { createRouter, publicQuery } from "./middleware";
 
 export const appRouter = createRouter({
@@ -18,6 +19,7 @@ export const appRouter = createRouter({
   admin: adminRouter,
   commerce: commerceRouter,
   site: siteRouter,
+  users: usersRouter,
 });
 
 export type AppRouter = typeof appRouter;

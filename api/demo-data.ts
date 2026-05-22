@@ -229,6 +229,76 @@ export const demoAdminUser = {
   lastSignInAt: new Date("2026-05-16"),
 };
 
+export type DemoManagedUser = {
+  id: number;
+  unionId: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  avatar: string | null;
+  role: "user" | "admin";
+  status: "active" | "inactive" | "blocked";
+  authProvider: "mobile" | "google" | "email" | "demo";
+  notes: string;
+  createdAt: Date;
+  updatedAt: Date;
+  lastSignInAt: Date;
+};
+
+export const demoManagedUsers: DemoManagedUser[] = [
+  {
+    ...demoAdminUser,
+    status: "active" as const,
+    authProvider: "demo" as const,
+    notes: "Default admin account for hosted demo mode.",
+  },
+  {
+    id: 2,
+    unionId: "mobile-9876543210",
+    name: "Aman Kongari",
+    email: "aman@example.com",
+    phone: "+91 98765 43210",
+    role: "user" as const,
+    avatar: null,
+    status: "active" as const,
+    authProvider: "mobile" as const,
+    notes: "Repeat buyer, birthday cakes and express delivery.",
+    createdAt: new Date("2026-04-18"),
+    updatedAt: new Date("2026-05-16"),
+    lastSignInAt: new Date("2026-05-16T08:20:00"),
+  },
+  {
+    id: 3,
+    unionId: "google-priya",
+    name: "Priya Sharma",
+    email: "priya@example.com",
+    phone: "+91 91234 56780",
+    role: "user" as const,
+    avatar: null,
+    status: "active" as const,
+    authProvider: "google" as const,
+    notes: "Prefers desserts and scheduled deliveries.",
+    createdAt: new Date("2026-04-25"),
+    updatedAt: new Date("2026-05-14"),
+    lastSignInAt: new Date("2026-05-15T14:30:00"),
+  },
+  {
+    id: 4,
+    unionId: "mobile-9988776655",
+    name: "Rahul Mehta",
+    email: "rahul@example.com",
+    phone: "+91 99887 76655",
+    role: "user" as const,
+    avatar: null,
+    status: "inactive" as const,
+    authProvider: "mobile" as const,
+    notes: "Low activity account retained for testing filters.",
+    createdAt: new Date("2026-05-05"),
+    updatedAt: new Date("2026-05-08"),
+    lastSignInAt: new Date("2026-05-08T10:10:00"),
+  },
+];
+
 export const demoCustomers = [
   {
     id: 1,

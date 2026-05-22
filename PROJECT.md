@@ -126,6 +126,7 @@ Add-ons are now backend-driven:
 
 Currently implemented in demo-memory mode:
 
+- User management
 - Products
 - Locations
 - Occasions
@@ -187,3 +188,4 @@ Current scope note:
 - Made `npm run start` hosting-friendly; production mode is supplied through host environment variables.
 - Updated Render demo auth placeholders so Blueprint deploy does not depend on empty auth values.
 - Moved Vite/esbuild/Tailwind build tooling into deploy dependencies so Render free web service can build even when production install skips dev dependencies.
+- Added backend user management with admin list/search/filter, create, edit, role/status/provider/notes controls, delete protection for admin accounts and `/admin/users` UI.

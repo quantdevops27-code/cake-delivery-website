@@ -14,6 +14,7 @@ const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
 const OrderTrack = lazy(() => import("./pages/OrderTrack"));
 const Login = lazy(() => import("./pages/Login"));
 const AdminDashboard = lazy(() => import("./pages/Admin/Dashboard"));
+const AdminUsers = lazy(() => import("./pages/Admin/Users"));
 const AdminHero = lazy(() => import("./pages/Admin/Hero"));
 const AdminCollections = lazy(() => import("./pages/Admin/Collections"));
 const AdminOrders = lazy(() => import("./pages/Admin/Orders"));
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/track" element={<OrderTrack />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/hero" element={<AdminHero />} />
           <Route path="/admin/collections" element={<AdminCollections />} />
           <Route path="/admin/orders" element={<AdminOrders />} />

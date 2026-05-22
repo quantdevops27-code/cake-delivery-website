@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Images,
   FolderTree,
+  UserCog,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
@@ -19,6 +20,7 @@ import type { ReactNode } from "react";
 
 const navItems = [
   { name: "Dashboard", path: "/admin", icon: LayoutDashboard, hint: "Store overview" },
+  { name: "Users", path: "/admin/users", icon: UserCog, hint: "Access & roles" },
   { name: "Hero", path: "/admin/hero", icon: Images, hint: "Homepage banner" },
   { name: "Collections", path: "/admin/collections", icon: FolderTree, hint: "Category hierarchy" },
   { name: "Orders", path: "/admin/orders", icon: ShoppingBag, hint: "Fulfilment queue" },
